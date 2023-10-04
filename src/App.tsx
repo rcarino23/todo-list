@@ -1,4 +1,3 @@
-import React from "react";
 import "./App.css";
 import ViewList from "./components/ViewList";
 import CreateTodo from "./components/CreateTodo";

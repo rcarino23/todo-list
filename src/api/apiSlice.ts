@@ -14,7 +14,7 @@ const initialState: TodoState = {
 };
 
 export const fetchTodo = createAsyncThunk("todo/fetch", async () => {
-  const response = await fetch("http://localhost:8000/todo", {
+  const response = await fetch("http://localhost:9000/", {
     method: "GET",
   });
   const data = response.json();
@@ -22,7 +22,7 @@ export const fetchTodo = createAsyncThunk("todo/fetch", async () => {
 });
 
 export const createTodo = createAsyncThunk("todo/add", async (title: string) => {
-  const response = await fetch("http://localhost:8000/todo", {
+  const response = await fetch("http://localhost:9000/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
