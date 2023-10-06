@@ -16,7 +16,7 @@ const ViewList = () => {
           <tr>
             {todos.length > 0 ? (
               <>
-                <th>ID</th>
+                {/* <th>ID</th> */}
                 <th>Title</th>
                 <th>Action</th>
               </>
@@ -28,7 +28,7 @@ const ViewList = () => {
         <tbody>
           {todos.map((todo) => (
             <tr key={todo.id}>
-              <td>{todo.id}</td>
+              {/* <td>{todo.userID}</td> */}
               <td>{todo.title}</td>
               <td>
                 <button onClick={()=>{handleDel(todo.id)}}>Del</button>
