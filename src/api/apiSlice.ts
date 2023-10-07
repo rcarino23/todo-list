@@ -3,9 +3,9 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 export interface Todo {
   id: number;
   title: string;
-  userID: number
+  userID: number;
+  isCompleted: boolean;
 }
-
 interface TodoState {
   todos: Todo[];
 }
@@ -15,20 +15,23 @@ const initialState: TodoState = {
 };
 
 // DISPLAY ALL
-export const fetchTodo = createAsyncThunk("todo/fetch", async () => {
-  const response = await fetch("http://localhost:9000/", {
-    method: "GET",
-  });
-  const data = response.json();
-  return data;
-});
+// export const fetchTodo = createAsyncThunk("todo/fetch", async () => {
+//   const response = await fetch("http://localhost:9000/", {
+//     method: "GET",
+//   });
+//   const data = response.json();
+//   return data;
+// });
+
+function saveStateToLocalStorage(state: TodoState) {
+  localStorage.setItem("todoData", JSON.stringify(state));
+}
 
 // DISPLAY TODO LIST BY USER
-export const fetchUserTodos = createAsyncThunk("todo/fetchUserTodos", async (userId: string) => {
+export const fetchUserTodos = createAsyncThunk("todo/fetchUserTodos", async (userId: number) => {
   const response = await fetch(`http://localhost:9000/users/${userId}/todos`, {
     method: "GET",
-    headers: {
-    },
+    headers: {},
   });
   const data = await response.json();
   return data;
@@ -50,38 +53,58 @@ export const createTodo = createAsyncThunk("todo/add", async (title: string) => 
 });
 
 // DELETE TODO LIST
-export const delTodo = createAsyncThunk(
-  'todo/delete',
-  async (id: number) => {
-    const response = await fetch(`http://localhost:9000/todos/${id}`, {
-      method: 'DELETE',
-    });
-    const data = await response.json();
-    return data;
-  }
-);
+export const delTodo = createAsyncThunk("todo/delete", async (id: number) => {
+  const response = await fetch(`http://localhost:9000/todos/${id}`, {
+    method: "DELETE",
+  });
+  const data = await response.json();
+  return data;
+});
+
+// Complete TODO LIST/ UPDATE
+export const completeTodo = createAsyncThunk("todo/update", async (id: number) => {
+  const response = await fetch(`http://localhost:9000/todos/${id}`, {
+    method: "PUT", // Use "PUT" to update an existing resource
+    body: JSON.stringify({ isCompleted: true }), // Send updated data
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await response.json();
+  return data;
+});
 
 export const apiSlice = createSlice({
   name: "todo",
   initialState,
   reducers: {
-    addTodo: (state, action: PayloadAction<{ title: string, userID: number }>) => {
+    addTodo: (state, action: PayloadAction<{ title: string; userID: number; isCompleted: boolean }>) => {
       state.todos.push({
         id: state.todos.length,
         title: action.payload.title,
         userID: action.payload.userID,
+        isCompleted: action.payload.isCompleted,
       });
-
+      saveStateToLocalStorage(state);
     },
     deleteTodo: (state, action: PayloadAction<number>) => {
       state.todos = state.todos.filter((todo) => todo.id !== action.payload);
+      saveStateToLocalStorage(state);
+    },
+    updateTodo: (state, action: PayloadAction<{ id: number }>) => {
+      const { id } = action.payload;
+      const updatedTodo = state.todos.find((todo) => todo.id === id);
+      if (updatedTodo) {
+        updatedTodo.isCompleted = true;
+      }
+      saveStateToLocalStorage(state);
     },
   },
 
   extraReducers: (builder) => {
-    builder.addCase(fetchTodo.fulfilled, (state, action) => {
-      state.todos = action.payload;
-    });
+    // builder.addCase(fetchTodo.fulfilled, (state, action) => {
+    //   state.todos = action.payload;
+    // });
 
     builder.addCase(fetchUserTodos.fulfilled, (state, action) => {
       state.todos = action.payload;
@@ -94,8 +117,14 @@ export const apiSlice = createSlice({
     builder.addCase(createTodo.fulfilled, (state, action) => {
       state.todos.push(action.payload);
     });
+    builder.addCase(completeTodo.fulfilled, (state, action) => {
+      const updatedTodo = state.todos.find((todo) => todo.id === action.payload.id);
+      if (updatedTodo) {
+        updatedTodo.isCompleted = true;
+      }
+    });
   },
 });
 
 export default apiSlice.reducer;
-export const { addTodo, deleteTodo } = apiSlice.actions;
+export const { addTodo, deleteTodo, updateTodo } = apiSlice.actions;

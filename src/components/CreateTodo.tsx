@@ -7,7 +7,7 @@ const CreateTodo = () => {
   const [userID, setUserID] = useState<number>(0);
   const [username, setUsername] = useState<string>("");
   const [title, setTitle] = useState<string>("");
-  const [disable, setDisable] = useState<Boolean>(true);
+  const [disable, setDisable] = useState<boolean>(true);
   const dispatch = useAppDispatch();
 
   const userDataString = localStorage.getItem("userData");
@@ -15,8 +15,8 @@ const CreateTodo = () => {
     if (userDataString !== null) {
       const userDataArray = JSON.parse(userDataString);
       if (Array.isArray(userDataArray) && userDataArray.length > 0) {
-        setUsername(userDataArray[0].username)
-        setUserID(userDataArray[0].id)
+        setUsername(userDataArray[0].username);
+        setUserID(userDataArray[0].id);
         setDisable(false);
       }
     }
@@ -28,12 +28,13 @@ const CreateTodo = () => {
       console.log("Put title first");
       return;
     }
-    dispatch(addTodo({ title, userID }));
+    const isCompleted: boolean = false;
+    dispatch(addTodo({ title, userID, isCompleted }));
     setTitle("");
   };
   return (
     <>
-      {!disable ?
+      {!disable ? (
         <>
           <div>
             <a href="/Login">Logout</a>
@@ -46,7 +47,9 @@ const CreateTodo = () => {
             <ViewList />
           </div>
         </>
-        : <a href="/Login">Login</a>}
+      ) : (
+        <a href="/Login">Login</a>
+      )}
     </>
   );
 };
