@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Todo {
@@ -79,8 +80,9 @@ export const apiSlice = createSlice({
   initialState,
   reducers: {
     addTodo: (state, action: PayloadAction<{ title: string; userID: number; isCompleted: boolean }>) => {
+      const uniqueId = uuidv4();
       state.todos.push({
-        id: state.todos.length,
+        id: uniqueId,
         title: action.payload.title,
         userID: action.payload.userID,
         isCompleted: action.payload.isCompleted,
