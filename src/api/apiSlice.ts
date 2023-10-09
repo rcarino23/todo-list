@@ -7,24 +7,10 @@ export interface Todo {
   userID: number;
   isCompleted: boolean;
 }
-interface TodoState {
-  todos: Todo[];
-}
 
-const initialState: TodoState = {
-  todos: [],
-};
+const initialState: Todo[] = [];
 
-// DISPLAY ALL
-// export const fetchTodo = createAsyncThunk("todo/fetch", async () => {
-//   const response = await fetch("http://localhost:9000/", {
-//     method: "GET",
-//   });
-//   const data = response.json();
-//   return data;
-// });
-
-function saveStateToLocalStorage(state: TodoState) {
+function saveStateToLocalStorage(state: Todo[]) {
   localStorage.setItem("todoData", JSON.stringify(state));
 }
 
@@ -76,8 +62,8 @@ export const completeTodo = createAsyncThunk(
   "todo/update",
   async (id: number) => {
     const response = await fetch(`http://localhost:9000/todos/${id}`, {
-      method: "PUT", // Use "PUT" to update an existing resource
-      body: JSON.stringify({ isCompleted: true }), // Send updated data
+      method: "PUT",
+      body: JSON.stringify({ isCompleted: true }),
       headers: {
         "Content-Type": "application/json",
       },
@@ -87,62 +73,48 @@ export const completeTodo = createAsyncThunk(
   }
 );
 
+// refactor action type/interface : DONE
 export const apiSlice = createSlice({
   name: "todo",
   initialState,
   reducers: {
     addTodo: (
       state,
-      action: PayloadAction<{
-        title: string;
-        userID: number;
-        isCompleted: boolean;
-      }>
+      action: PayloadAction<Pick<Todo, "title" | "userID" | "isCompleted">>
     ) => {
       const uniqueId = uuidv4();
       const idNumber = parseInt(uniqueId.replace(/-/g, ""), 16);
-      state.todos.push({
+      state.push({
         id: idNumber,
-        title: action.payload.title,
-        userID: action.payload.userID,
-        isCompleted: action.payload.isCompleted,
+        ...action.payload,
       });
       saveStateToLocalStorage(state);
     },
     deleteTodo: (state, action: PayloadAction<number>) => {
-      state.todos = state.todos.filter((todo) => todo.id !== action.payload);
+      state = state.filter((todo) => todo.id !== action.payload);
       saveStateToLocalStorage(state);
     },
     updateTodo: (state, action: PayloadAction<{ id: number }>) => {
       const { id } = action.payload;
-      const updatedTodo = state.todos.find((todo) => todo.id === id);
+      const updatedTodo = state.find((todo) => todo.id === id);
       if (updatedTodo) {
         updatedTodo.isCompleted = true;
       }
       saveStateToLocalStorage(state);
     },
   },
-
   extraReducers: (builder) => {
-    // builder.addCase(fetchTodo.fulfilled, (state, action) => {
-    //   state.todos = action.payload;
-    // });
-
     builder.addCase(fetchUserTodos.fulfilled, (state, action) => {
-      state.todos = action.payload;
+      state = action.payload;
     });
-
     builder.addCase(delTodo.fulfilled, (state, action) => {
-      state.todos = state.todos.filter((todo) => todo.id !== action.payload.id);
+      state = state.filter((todo) => todo.id !== action.payload.id);
     });
-
     builder.addCase(createTodo.fulfilled, (state, action) => {
-      state.todos.push(action.payload);
+      state.push(action.payload);
     });
     builder.addCase(completeTodo.fulfilled, (state, action) => {
-      const updatedTodo = state.todos.find(
-        (todo) => todo.id === action.payload.id
-      );
+      const updatedTodo = state.find((todo) => todo.id === action.payload.id);
       if (updatedTodo) {
         updatedTodo.isCompleted = true;
       }

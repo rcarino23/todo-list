@@ -7,13 +7,8 @@ export interface User {
   pass: string;
 }
 
-interface UserState {
-  user: User[];
-}
-
-const initialState: UserState = {
-  user: [],
-};
+// Refactor : DONE
+const initialState: User[] = [];
 
 const LOCAL_STORAGE_KEY = "userData";
 
@@ -75,8 +70,8 @@ export const userSlice = createSlice({
       state,
       action: PayloadAction<{ username: string; pass: string }>
     ) => {
-      state.user.push({
-        id: state.user.length,
+      state.push({
+        id: state.length,
         username: action.payload.username,
         pass: action.payload.pass,
       });
@@ -85,15 +80,15 @@ export const userSlice = createSlice({
       state,
       action: PayloadAction<{ username: string; pass: string }>
     ) => {
-      // state.user = action.payload;
+      // state = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder.addCase(insertUser.fulfilled, (state, action) => {
-      state.user.push(action.payload);
+      state.push(action.payload);
     });
     builder.addCase(loginUser.fulfilled, (state, action) => {
-      state.user = action.payload;
+      state = action.payload;
     });
   },
 });

@@ -1,25 +1,24 @@
 import { useEffect, useState } from "react";
 
-
 function Header() {
-    const [disable, setDisable] = useState<Boolean>(true);
-    const userDataString = localStorage.getItem("userData");
+  const [isShow, setIsShow] = useState<boolean>(true);
+  const userDataString = localStorage.getItem("userData");
 
-    useEffect(() => {
-        if (userDataString !== null) {
-            setDisable(false);
-        }
-    }, [userDataString])
+  useEffect(() => {
+    if (userDataString !== null) {
+      setIsShow(false);
+    }
+  }, [userDataString]);
 
-    return (
+  return (
+    <>
+      {isShow && (
         <>
-            {disable &&
-                <>
-                    <a href="/SignUp">SignUp</a>
-                </>
-            }
+          <a href="/SignUp">SignUp</a>
         </>
-    )
+      )}
+    </>
+  );
 }
 
-export default Header
+export default Header;
