@@ -29,29 +29,38 @@ function saveStateToLocalStorage(state: TodoState) {
 }
 
 // DISPLAY TODO LIST BY USER
-export const fetchUserTodos = createAsyncThunk("todo/fetchUserTodos", async (userId: number) => {
-  const response = await fetch(`http://localhost:9000/users/${userId}/todos`, {
-    method: "GET",
-    headers: {},
-  });
-  const data = await response.json();
-  return data;
-});
+export const fetchUserTodos = createAsyncThunk(
+  "todo/fetchUserTodos",
+  async (userId: number) => {
+    const response = await fetch(
+      `http://localhost:9000/users/${userId}/todos`,
+      {
+        method: "GET",
+        headers: {},
+      }
+    );
+    const data = await response.json();
+    return data;
+  }
+);
 
 // CREATE TODO LIST
-export const createTodo = createAsyncThunk("todo/add", async (title: string) => {
-  const response = await fetch("http://localhost:9000/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      title,
-    }),
-  });
-  const data = await response.json();
-  return data;
-});
+export const createTodo = createAsyncThunk(
+  "todo/add",
+  async (title: string) => {
+    const response = await fetch("http://localhost:9000/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title,
+      }),
+    });
+    const data = await response.json();
+    return data;
+  }
+);
 
 // DELETE TODO LIST
 export const delTodo = createAsyncThunk("todo/delete", async (id: number) => {
@@ -63,26 +72,37 @@ export const delTodo = createAsyncThunk("todo/delete", async (id: number) => {
 });
 
 // Complete TODO LIST/ UPDATE
-export const completeTodo = createAsyncThunk("todo/update", async (id: number) => {
-  const response = await fetch(`http://localhost:9000/todos/${id}`, {
-    method: "PUT", // Use "PUT" to update an existing resource
-    body: JSON.stringify({ isCompleted: true }), // Send updated data
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const data = await response.json();
-  return data;
-});
+export const completeTodo = createAsyncThunk(
+  "todo/update",
+  async (id: number) => {
+    const response = await fetch(`http://localhost:9000/todos/${id}`, {
+      method: "PUT", // Use "PUT" to update an existing resource
+      body: JSON.stringify({ isCompleted: true }), // Send updated data
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    return data;
+  }
+);
 
 export const apiSlice = createSlice({
   name: "todo",
   initialState,
   reducers: {
-    addTodo: (state, action: PayloadAction<{ title: string; userID: number; isCompleted: boolean }>) => {
+    addTodo: (
+      state,
+      action: PayloadAction<{
+        title: string;
+        userID: number;
+        isCompleted: boolean;
+      }>
+    ) => {
       const uniqueId = uuidv4();
+      const idNumber = parseInt(uniqueId.replace(/-/g, ""), 16);
       state.todos.push({
-        id: uniqueId,
+        id: idNumber,
         title: action.payload.title,
         userID: action.payload.userID,
         isCompleted: action.payload.isCompleted,
@@ -120,7 +140,9 @@ export const apiSlice = createSlice({
       state.todos.push(action.payload);
     });
     builder.addCase(completeTodo.fulfilled, (state, action) => {
-      const updatedTodo = state.todos.find((todo) => todo.id === action.payload.id);
+      const updatedTodo = state.todos.find(
+        (todo) => todo.id === action.payload.id
+      );
       if (updatedTodo) {
         updatedTodo.isCompleted = true;
       }
